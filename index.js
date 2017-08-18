@@ -22,6 +22,31 @@ app.get('/webhook/', function(req, res){
   res.send("No entry")
 })
 
+app.post('/webhook/', function(req, res){
+ var data = req.body
+ if(data.object == 'page') {
+  data.entry.forEach(function(entry){
+    var pageID = entry.id
+    var timeOfEvent = entry.time
+
+    entry.messaging.forEach(function(event){
+      if(event.message){
+        receivedMessage(event);
+      }
+      else {
+        console.log("Webhook received unknow event: ", event)
+      }
+    })
+  })
+  res.sendStatus(200)
+
+ }
+})
+
+function receivedMessage(event){
+  console.log("Message data: ", event.massage)
+}
+
 
 app.listen(app.get('port'),function(){
   console.log('running on port', app.get('port'))
