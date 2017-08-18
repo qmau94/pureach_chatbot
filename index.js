@@ -1,25 +1,34 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-const request = require('request')
-const app = express()
-const token = process.env.FB_VERIFY_TOKEN
-const access = process.env.FB_ACCESS_TOKEN
+const express = require('express');
+const bodyParser = require('body-parser');
+const request = require('request');
+const app = express();
+
+const token = process.env.FB_VERIFY_TOKEN;
+const access = process.env.FB_ACCESS_TOKEN;
 
 
-app.set('port', (process.env.PORT || 5000))
+app.set('port', (process.env.PORT || 5000));
 
-app.use(bodyParser.urlencoded({extended: false}))
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+
+app.listen(app.get('port'),function(){
+  console.log('running on port', app.get('port'));
+})
+
 
 app.get('/',function (req, res){
-  res.send("Hello")
+  res.send("Hello");
 })
 
 app.get('/webhook/', function(req, res){
   if(req.query['hub.verify_token'] === token) {
-      res.send(req.query['hub.challenge'])
+      console.log("Verified webhook");
+      res.status(200).send(req.query['hub.challenge']);
+    } else  {
+      console.error("Verification failed. The tokens do not match.");
+      res.sendStatus(403);
     }
-  res.send("No entry")
 })
 
 app.post('/webhook', function (req, res) {
@@ -57,6 +66,3 @@ function receivedMessage(event) {
   console.log("Message data: ", event.message);
 }
 
-app.listen(app.get('port'),function(){
-  console.log('running on port', app.get('port'))
-})
