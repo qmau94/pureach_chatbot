@@ -7,21 +7,11 @@ const token = process.env.FB_VERIFY_TOKEN;
 const PAGE_ACCESS_TOKEN = process.env.FB_ACCESS_TOKEN;
 const SHOP_ADDRESS = 'Ecolife Capital, Tố Hữu, Trung Văn, Từ Liêm, Hà Nội, Vietnam'
 
-// mongodb
-var mongo = require('mongodb');
-var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://pureach:123456@ds149763.mlab.com:49763/pureach";
+// mongo
+// var mongo = require('mongodb');
 
-function mongoQuery(type){
-  MongoClient.connect(url, function(err, db) {
-  query = {type: type};
-  db.collection("products").find(query).forEach(function(doc){
-    console.log(doc.name);
-    console.log(doc.type);
-  });
-  db.close();
-});
-}
+// var MongoClient = require('mongodb').MongoClient;
+// var url = "mongodb://pureach:123456@ds149763.mlab.com:49763/pureach";
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -57,6 +47,8 @@ app.post('/webhook', function (req, res) {
   if (data.object === 'page') {
     // Iterate over each entry - there may be multiple if batched
     data.entry.forEach(function(entry){
+      console.log("ENTRY: ", entry);
+      console.log("MSGING: ", entry.messaging);
       var pageID = entry.id;
       var timeOfEvent = entry.time;
 
@@ -192,22 +184,34 @@ function receivedQuickReply(event){
       sendLamSach(senderID);
       break;
     case 'TRIMUN_PAYLOAD':
-      sendTriMun(recipientID);
+      sendTriMun(senderID);
       break;
     case 'TRITHAM_PAYLOAD':
-      sendTriTham(recipientID);
+      sendTriTham(senderID);
       break;
     case 'LAMTRANG_PAYLOAD':
-      sendLamTrang(recipientID);
+      sendLamTrang(senderID);
       break;
     case 'DUONGAM_PAYLOAD':
-      sendDuongAm(recipientID);
+      sendDuongAm(senderID);
     default:
       console.log(payload);
   }
 }
 
 // received functions
+function sendTriMun(recipientId) {
+  var messageData = {
+    recipient: {
+      id: recipientId
+    },
+    message: {
+      text: "Body care products"
+    }
+  };
+
+  callSendAPI(messageData);
+}
 
 
 // send functions
@@ -284,14 +288,13 @@ function sendHairCare(recipientId) {
 
 // skill care
 
-function sendTriMun(recipientId) {
-  var product = mongoQuery(1);
+function sendTriTham(recipientId) {
   var messageData = {
     recipient: {
       id: recipientId
     },
     message: {
-      text: product
+      text: "Tri tham products"
     }
   };
 
